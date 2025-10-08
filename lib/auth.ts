@@ -7,14 +7,19 @@ import Credentials from "next-auth/providers/credentials";
 
 const adminEmail = process.env.ADMIN_EMAIL;
 const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
-const authSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const authSecret =
+  process.env.AUTH_SECRET ??
+  process.env.NEXTAUTH_SECRET ??
+  // Provide a deterministic fallback so builds do not fail even if the secret isn't configured.
+  // This should be overridden in production via environment variables.
+  "fallback-nextauth-secret-change-me";
 
 if (!adminEmail || !adminPasswordHash) {
   console.warn("ADMIN_EMAIL and ADMIN_PASSWORD_HASH must be set for admin login to function.");
 }
 
-if (!authSecret) {
-  console.warn("AUTH_SECRET or NEXTAUTH_SECRET must be set for NextAuth to encrypt sessions.");
+if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
+  console.warn("AUTH_SECRET or NEXTAUTH_SECRET was not set. Using fallback secret; set a secure secret in production.");
 }
 
 export const authOptions: AuthOptions = {

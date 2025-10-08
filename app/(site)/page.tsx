@@ -1,236 +1,437 @@
 import type { Route } from "next";
 import Link from "next/link";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Zap, Database, Server, Cloud } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { prisma } from "@/lib/db";
+import { allPosts, type Post } from "contentlayer/generated";
+import ConstellationTitle from "@/components/hero/ConstellationTitle";
+import { SpotlightCursor } from "@/components/effects/SpotlightCursor";
+import { ScrollReveal } from "@/components/effects/ScrollReveal";
+import { LiveMetrics } from "@/components/metrics/LiveMetrics";
+import { ProductTheater } from "@/components/theater/ProductTheater";
+import { HowIWork } from "@/components/process/HowIWork";
+import { CommandPalette } from "@/components/ui/command-palette";
+import { RadialCapabilityMap } from "@/components/capabilities/RadialCapabilityMap";
+import { LiveChangelog } from "@/components/activity/LiveChangelog";
+import { BeforeAfterSlider } from "@/components/performance/BeforeAfterSlider";
+import { SocialProof } from "@/components/social/SocialProof";
 
-// Completely static homepage - no contentlayer, no revalidate, no server components
-export default function HomePage() {
-  // Static blog posts data to avoid contentlayer issues
-  const staticPosts = [
-    {
-      slug: "getting-started",
-      title: "Building Modern Web Applications",
-      summary: "Exploring the latest trends in web development and architecture patterns.",
-      publishedAt: "2024-01-15"
-    },
-    {
-      slug: "cloud-architecture", 
-      title: "Scalable Cloud Infrastructure",
-      summary: "Best practices for designing and implementing cloud-native solutions.",
-      publishedAt: "2024-01-10"
-    },
-    {
-      slug: "performance-optimization",
-      title: "Web Performance Optimization",
-      summary: "Techniques for improving Core Web Vitals and user experience.",
-      publishedAt: "2024-01-05"
-    }
-  ];
+export const dynamic = "force-dynamic";
 
-  const fmt = (d: string) =>
-    new Date(d).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
+const fmt = (d: string | Date) =>
+  new Date(d).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
+
+type Project = {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string | null;
+  featured: boolean;
+  tech: string[];
+  createdAt: Date;
+};
+
+export default async function HomePage() {
+  const projects = await prisma.project.findMany({ orderBy: { createdAt: "desc" }, take: 7 });
+  const posts = [...allPosts]
+    .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
+    .slice(0, 3);
+  const featured = projects.find((p: Project) => p.featured) ?? projects[0] ?? null;
 
   return (
     <div className="relative">
-      {/* Hero Section */}
-      <header className="container-wide pt-[calc(env(safe-area-inset-top)+92px)] pb-12 px-4">
-        <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 text-neutral-900 dark:text-neutral-100">
-            Nithin Reddy Poola
-          </h1>
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-emerald-100 dark:bg-emerald-900/20 mb-6">
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
-            </span>
-            <span className="text-sm font-medium text-emerald-800 dark:text-emerald-200">
-              Available for high-impact work
-            </span>
+      {/* Palette */}
+      <CommandPalette />
+
+      {/* Spotlight off on mobile for calmness */}
+      <div className="hidden sm:block">
+        <SpotlightCursor />
+      </div>
+
+      {/* Ambient layers */}
+      <div aria-hidden className="field field-light dark:field-dark" />
+      <div aria-hidden className="field grain" />
+      <div aria-hidden className="conic-accent-1 left-1/4 top-20 h-96 w-96 hidden md:block" />
+      <div aria-hidden className="conic-accent-2 right-1/3 top-1/2 h-80 w-80 hidden md:block" />
+
+      {/* ===== HERO ===== */}
+      <header
+        className="
+          container-wide
+          pt-[calc(env(safe-area-inset-top)+92px)]
+          sm:pt-[calc(env(safe-area-inset-top)+108px)]
+          lg:pt-[calc(env(safe-area-inset-top)+132px)]
+          pb-12 sm:pb-16 px-4 sm:px-6
+        "
+      >
+        <div className="grid gap-8 sm:gap-12 lg:grid-cols-2 lg:items-center lg:gap-16">
+          <div className="max-w-2xl">
+            {/* STATUS CHIP — desktop/tablet */}
+            <div className="hidden sm:inline-flex items-center gap-2 px-4 py-2 rounded-full glass mb-6">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-sm font-medium text-neutral-700 dark:text-neutral-200 kicker">
+                Available for high-impact work
+              </span>
+            </div>
+
+            {/* NAME */}
+            <h1
+              className="headline-xl text-[38px] leading-tight sm:text-5xl lg:text-6xl"
+              aria-label="Nithin Reddy Poola - Software Engineer"
+            >
+              Nithin Reddy Poola
+            </h1>
+
+            {/* STATUS CHIP — mobile */}
+            <div className="mt-3 inline-flex sm:hidden items-center gap-2 px-3 py-1.5 rounded-full glass">
+              <span className="relative flex h-2 w-2">
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
+              </span>
+              <span className="text-xs font-medium text-neutral-700 dark:text-neutral-200 kicker">
+                Available for high-impact work
+              </span>
+            </div>
+
+            {/* PROMISE LINE */}
+            <p className="mt-3 text-[20px] sm:text-[24px] md:text-[28px] font-semibold text-neutral-800 dark:text-neutral-100 tracking-tight leading-snug">
+              I turn complex systems into effortless products.
+            </p>
+
+            {/* BODY */}
+            <p className="mt-4 max-w-[32ch] sm:max-w-xl text-base sm:text-lg leading-relaxed text-neutral-600 dark:text-neutral-300">
+              Full-stack engineer focused on shipping{" "}
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">resilient, measurable platforms</span> with{" "}
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">design-level polish</span>. Faster launches, fewer incidents, happier users.
+            </p>
+
+            {/* LIVE METRICS */}
+            <div className="mt-6 sm:mt-8 mb-6 sm:mb-8">
+              <LiveMetrics />
+            </div>
+
+            {/* CTAs — full-width on mobile, no “shake” */}
+            <div className="mt-6 sm:mt-8 flex flex-col sm:flex-row flex-wrap items-stretch sm:items-center gap-3 sm:gap-4">
+              <div className="inline-flex transform-gpu will-change-transform [backface-visibility:hidden] w-full sm:w-auto">
+                <Button
+                  asChild
+                  size="lg"
+                  className="btn-primary shadow-medium focus:focus-ring-primary h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto rounded-2xl"
+                >
+                  <Link href={"work" as Route}>
+                    View Work <ArrowRight className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="inline-flex transform-gpu will-change-transform [backface-visibility:hidden] w-full sm:w-auto">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="btn-secondary h-11 sm:h-12 px-6 sm:px-8 text-sm sm:text-base w-full sm:w-auto rounded-2xl"
+                >
+                  <Link href={"/contact" as Route}>Let&apos;s Talk</Link>
+                </Button>
+              </div>
+            </div>
+
+            {/* HARD STATS */}
+            <div className="mt-8 sm:mt-12 grid grid-cols-3 gap-2 sm:gap-4 max-w-md">
+              {[
+                { k: "Products Shipped", v: "23+", icon: Sparkles },
+                { k: "Avg Response", v: "<100ms", icon: Zap },
+                { k: "Uptime SLA", v: "99.95%", icon: Server },
+              ].map((s) => (
+                <div key={s.k} className="text-center glass-hover p-3 sm:p-5 inner-glow transition-all duration-300">
+                  <s.icon className="h-4 sm:h-5 w-4 sm:w-5 mx-auto mb-1 sm:mb-2 text-neutral-600 dark:text-neutral-300" />
+                  <div className="text-xl sm:text-2xl font-bold text-gradient mb-0.5 sm:mb-1">{s.v}</div>
+                  <div className="text-[10px] sm:text-xs text-neutral-600 dark:text-neutral-400 font-medium leading-tight">
+                    {s.k}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-8 sm:mt-12 hairline" />
+
+            {/* Signal chips — single line, scroll on overflow */}
+            <div
+              className="mt-4 sm:mt-6 overflow-x-auto overscroll-x-contain [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+              aria-label="Architecture signals"
+            >
+              <div className="flex flex-nowrap gap-2 sm:gap-3 pr-2">
+                {[
+                  { label: "RSC-first Architecture", icon: Server },
+                  { label: "Postgres + Redis", icon: Database },
+                  { label: "Edge + Serverless", icon: Cloud },
+                  { label: "p95 < 100ms", icon: Zap },
+                ].map((item) => (
+                  <div key={item.label} className="trust-chip whitespace-nowrap">
+                    <item.icon className="h-4 w-4" />
+                    <span>{item.label}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <p className="text-xl md:text-2xl text-neutral-600 dark:text-neutral-300 mb-8 leading-relaxed">
-            Full-Stack Software Engineer specializing in modern web applications, 
-            cloud infrastructure, and scalable system architecture
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              href="/work"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-neutral-900 text-white hover:bg-neutral-800 dark:bg-white dark:text-neutral-900 dark:hover:bg-neutral-200 transition-colors font-medium"
-            >
-              View My Work
-              <ArrowRight className="ml-2 h-4 w-4" />
-            </Link>
-            <Link
-              href="/contact"
-              className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-neutral-300 hover:bg-neutral-50 dark:border-neutral-700 dark:hover:bg-neutral-800 transition-colors font-medium"
-            >
-              Get In Touch
-            </Link>
+
+          {/* Constellation — shorter on phones */}
+          <div role="status" aria-live="polite" aria-atomic="true">
+            <ConstellationTitle className="reveal h-[220px] sm:h-[360px]" />
           </div>
         </div>
       </header>
 
-      {/* Skills Section */}
-      <section className="container-wide py-16 px-4 bg-neutral-50 dark:bg-neutral-900/30">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-4">
-              Technical Expertise
-            </h2>
-            <p className="text-neutral-600 dark:text-neutral-400 max-w-2xl mx-auto">
-              Experienced in full-stack development with modern technologies and cloud platforms
-            </p>
-          </div>
-          <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-            <div className="p-6 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-              <h3 className="text-lg font-semibold mb-3 text-neutral-900 dark:text-neutral-100">Frontend</h3>
-              <div className="flex flex-wrap gap-2">
-                {["React", "Next.js", "TypeScript", "Tailwind CSS", "JavaScript"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 text-xs rounded bg-blue-100 dark:bg-blue-900/30 text-blue-800 dark:text-blue-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
+      {/* ===== MAIN ===== */}
+      <main className="container-wide pb-16 sm:pb-28 px-4 sm:px-6">
+        {/* Featured */}
+        {featured && (
+          <section
+            id="work"
+            className="
+              mt-8 sm:mt-16
+              scroll-mt-[calc(env(safe-area-inset-top)+92px)]
+              sm:scroll-mt-[calc(env(safe-area-inset-top)+108px)]
+            "
+          >
+            <ScrollReveal>
+              <div className="mb-6 sm:mb-8 text-center">
+                <span className="inline-flex items-center gap-2 rounded-full bg-neutral-900/90 px-4 sm:px-5 py-2 sm:py-2.5 text-xs sm:text-sm font-semibold text-white dark:bg-white/10 dark:text-neutral-200 shadow-lg">
+                  <Sparkles className="h-4 w-4" /> Featured Case Study
+                </span>
               </div>
-            </div>
-            <div className="p-6 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-              <h3 className="text-lg font-semibold mb-3 text-neutral-900 dark:text-neutral-100">Backend</h3>
-              <div className="flex flex-wrap gap-2">
-                {["Node.js", "Python", "Java", "PostgreSQL", "REST APIs"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 text-xs rounded bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="p-6 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700">
-              <h3 className="text-lg font-semibold mb-3 text-neutral-900 dark:text-neutral-100">Cloud & DevOps</h3>
-              <div className="flex flex-wrap gap-2">
-                {["AWS", "Azure", "Docker", "Kubernetes", "CI/CD"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 text-xs rounded bg-purple-100 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+            </ScrollReveal>
 
-      {/* Projects Section */}
-      <section className="container-wide py-16 px-4">
-        <div className="max-w-6xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="inline-flex items-center gap-2 rounded-full bg-neutral-900/90 px-4 py-2 text-sm font-semibold text-white dark:bg-white/10">
-              <Sparkles className="h-4 w-4" /> Featured Projects
-            </span>
-          </div>
-          <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {/* Project placeholders - these will be populated from database once live */}
-            <div className="group p-6 rounded-lg border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors">
-              <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
-                Cloud Infrastructure Platform
-              </h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                Scalable cloud platform built with modern microservices architecture
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["AWS", "Kubernetes", "Node.js"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 text-xs rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="group p-6 rounded-lg border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors">
-              <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
-                Full-Stack Web Application
-              </h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                Modern web application with real-time features and responsive design
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["React", "Next.js", "PostgreSQL"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 text-xs rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-            <div className="group p-6 rounded-lg border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors">
-              <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
-                Machine Learning Pipeline
-              </h3>
-              <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
-                Automated ML pipeline for data processing and model deployment
-              </p>
-              <div className="flex flex-wrap gap-2">
-                {["Python", "TensorFlow", "Docker"].map((tech) => (
-                  <span
-                    key={tech}
-                    className="px-2 py-1 text-xs rounded bg-neutral-100 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-300"
-                  >
-                    {tech}
-                  </span>
-                ))}
-              </div>
-            </div>
-          </div>
-          <div className="text-center mt-12">
-            <Link
-              href="/work"
-              className="inline-flex items-center gap-2 text-sm font-semibold hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
-            >
-              View All Projects
-              <ArrowRight className="h-4 w-4" />
-            </Link>
-          </div>
-        </div>
-      </section>
+            <ScrollReveal delay={100}>
+              <ProductTheater project={featured} />
+            </ScrollReveal>
 
-      {/* Blog Section */}
-      {staticPosts.length > 0 && (
-        <section className="container-wide py-16 px-4 bg-neutral-50 dark:bg-neutral-900/30">
-          <div className="max-w-6xl mx-auto">
-            <h2 className="text-3xl font-bold text-center mb-12 text-neutral-900 dark:text-neutral-100">
-              Latest Posts
-            </h2>
-            <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {staticPosts.map((post) => (
-                <Link
-                  key={post.slug}
-                  href={`/blog/${post.slug}` as Route}
-                  className="group p-6 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:shadow-lg transition-shadow"
-                >
-                  <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
-                    {post.title}
-                  </h3>
-                  {post.summary && (
-                    <p className="text-neutral-600 dark:text-neutral-400 text-sm line-clamp-3 mb-4">
-                      {post.summary}
+            <ScrollReveal delay={200}>
+              <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mt-6 sm:mt-10">
+                <div className="md:col-span-2 glass p-5 sm:p-8 radius-lg inner-glow">
+                  <h2 className="headline-lg text-2xl sm:text-3xl lg:text-4xl mb-1">{featured.title}</h2>
+                  {featured.summary && (
+                    <p className="mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">
+                      {featured.summary}
                     </p>
                   )}
-                  <time className="text-xs text-neutral-500 dark:text-neutral-400">
-                    {fmt(post.publishedAt)}
-                  </time>
+                  {featured.tech?.length ? (
+                    <div className="mt-5 sm:mt-8 flex flex-wrap gap-2">
+                      {featured.tech.slice(0, 8).map((t: string) => (
+                        <span key={t} className="chip">
+                          {t}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                </div>
+
+                <div className="surface p-4 sm:p-6 radius-lg font-mono text-xs sm:text-sm leading-relaxed text-neutral-800 dark:text-neutral-200 inner-glow">
+                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-[10px] sm:text-xs kicker">
+                    <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                    <span>System Status</span>
+                  </div>
+                  <pre className="whitespace-pre-wrap text-[10px] sm:text-xs">
+{`✓ Status:    Live in Production
+✓ Stack:     ${featured.tech?.slice(0, 3).join(" • ") || "Full-stack"}
+✓ Deploy:    Automated CI/CD
+✓ Perf:      <100ms p95 latency
+✓ Scale:     Cloud-native arch`}
+                  </pre>
+                </div>
+              </div>
+            </ScrollReveal>
+          </section>
+        )}
+
+        {/* Projects */}
+        {projects.length > 1 && (
+          <section className="mt-16 sm:mt-32">
+            <ScrollReveal>
+              <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-0 mb-6">
+                <div>
+                  <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-3">
+                    More Projects
+                  </h3>
+                  <p className="text-base sm:text-lg text-neutral-600 dark:text-neutral-400">
+                    Outcome-driven solutions across fintech, B2B SaaS, and healthtech
+                  </p>
+                </div>
+                <Link
+                  href={"/work" as Route}
+                  className="group flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100 hover:text-gradient transition-all duration-300"
+                >
+                  See all projects
+                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </Link>
+              </div>
+            </ScrollReveal>
+
+            <div className="mt-6 sm:mt-10 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+              {projects.slice(0, 6).map((p: Project, i: number) => (
+                <ScrollReveal key={p.id} delay={i * 100}>
+                  <Link
+                    href={`/work/${p.slug}` as Route}
+                    className="group aura-border glass-hover radius-lg p-4 sm:p-6 block focus:focus-ring-primary transition-all duration-300"
+                  >
+                    <div className="flex items-center justify-between mb-4">
+                      <p className="text-xs kicker font-semibold">{new Date(p.createdAt).getFullYear()}</p>
+                      {p.featured && <span className="pill">Featured</span>}
+                    </div>
+                    <h4 className="text-lg sm:text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-2 sm:mb-3 group-hover:text-gradient transition-all duration-300">
+                      {p.title}
+                    </h4>
+                    {p.summary && (
+                      <p className="text-sm line-clamp-2 text-neutral-600 dark:text-neutral-300 mb-4 sm:mb-5 leading-relaxed">
+                        {p.summary}
+                      </p>
+                    )}
+                    {p.tech?.length ? (
+                      <div className="flex flex-wrap gap-2">
+                        {p.tech.slice(0, 4).map((t: string) => (
+                          <span key={t} className="chip text-xs">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
+                  </Link>
+                </ScrollReveal>
               ))}
             </div>
+          </section>
+        )}
+
+        {/* Latest Writing */}
+        <section className="mt-16 sm:mt-24">
+          <ScrollReveal>
+            <div className="flex flex-col sm:flex-row sm:items-end sm:justify-between gap-3 sm:gap-0 mb-6">
+              <div>
+                <h3 className="text-2xl sm:text-3xl font-bold tracking-tight text-neutral-900 dark:text-neutral-100 mb-2 sm:mb-3">
+                  Latest Writing
+                </h3>
+                <p className="text-base sm:text-lg text-neutral-600 dark:text-neutral-400">
+                  Insights on architecture, performance, and product craft
+                </p>
+              </div>
+              <Link
+                href={"/blog" as Route}
+                className="group flex items-center gap-2 text-sm font-semibold text-neutral-900 dark:text-neutral-100 hover:text-gradient transition-all duration-300"
+              >
+                See all posts
+                <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </ScrollReveal>
+
+          <div className="mt-6 sm:mt-8 grid gap-4 sm:gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+            {posts.map((post: Post, i: number) => (
+              <ScrollReveal key={post._id} delay={i * 100}>
+                <Link
+                  href={`/blog/${post.slug}` as Route}
+                  className="group aura-border surface radius-lg p-4 sm:p-6 block hover:shadow-lg transition-all duration-300 focus:focus-ring-primary"
+                >
+                  <div className="flex items-center gap-2 mb-4">
+                    <span className="inline-flex h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                    <p className="text-xs kicker font-semibold">{fmt(post.publishedAt)}</p>
+                  </div>
+                  <h4 className="text-lg sm:text-xl font-bold text-neutral-950 dark:text-neutral-50 mb-2 sm:mb-3 group-hover:text-gradient transition-all duration-300">
+                    {post.title}
+                  </h4>
+                  <p className="text-sm line-clamp-3 text-neutral-600 dark:text-neutral-300 mb-4 sm:mb-5 leading-relaxed">
+                    {post.summary ?? ""}
+                  </p>
+                  <div className="text-xs text-neutral-500 dark:text-neutral-400 font-medium">~5 min read</div>
+                </Link>
+              </ScrollReveal>
+            ))}
           </div>
         </section>
-      )}
+
+        {/* Process */}
+        <section className="mt-16 sm:mt-32">
+          <ScrollReveal>
+            <HowIWork />
+          </ScrollReveal>
+        </section>
+
+        {/* Capabilities */}
+        <section className="mt-16 sm:mt-32">
+          <ScrollReveal>
+            <RadialCapabilityMap />
+          </ScrollReveal>
+        </section>
+
+        {/* Performance */}
+        <section className="mt-16 sm:mt-32">
+          <ScrollReveal>
+            <BeforeAfterSlider />
+          </ScrollReveal>
+        </section>
+
+        {/* Social proof */}
+        <section className="mt-16 sm:mt-32">
+          <ScrollReveal>
+            <SocialProof />
+          </ScrollReveal>
+        </section>
+
+        {/* Activity */}
+        <section className="mt-16 sm:mt-32">
+          <ScrollReveal>
+            <LiveChangelog />
+          </ScrollReveal>
+        </section>
+
+        {/* CTA */}
+        <ScrollReveal delay={100}>
+          <section className="mt-16 sm:mt-32 text-center glass p-8 sm:p-12 lg:p-20 radius-lg inner-glow border border-neutral-200/50 dark:border-neutral-700/50">
+            <h3 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-neutral-900 dark:text-neutral-50 mb-4 sm:mb-6 leading-tight">
+              Ready to build something <span className="text-gradient">amazing</span>?
+            </h3>
+            <p className="text-base sm:text-lg lg:text-xl text-neutral-600 dark:text-neutral-300 max-w-2xl mx-auto mb-8 sm:mb-10 leading-relaxed">
+              Let&apos;s collaborate on your next big idea. Fast, reliable, and beautiful — every time.
+            </p>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4">
+              <div className="inline-flex transform-gpu will-change-transform [backface-visibility:hidden] w-full sm:w-auto">
+                <Button
+                  asChild
+                  size="lg"
+                  className="btn-primary shadow-lg focus:focus-ring-primary h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg font-semibold w-full sm:w-auto rounded-2xl"
+                >
+                  <Link href={"/contact" as Route}>
+                    Get in Touch <ArrowRight className="ml-2 h-4 sm:h-5 w-4 sm:w-5" />
+                  </Link>
+                </Button>
+              </div>
+              <div className="inline-flex transform-gpu will-change-transform [backface-visibility:hidden] w-full sm:w-auto">
+                <Button
+                  asChild
+                  size="lg"
+                  variant="outline"
+                  className="btn-secondary h-12 sm:h-14 px-8 sm:px-10 text-base sm:text-lg font-semibold w-full sm:w-auto rounded-2xl"
+                >
+                  <Link href={"/work" as Route}>Browse All Projects</Link>
+                </Button>
+              </div>
+            </div>
+            <p className="mt-8 sm:mt-10 text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 font-medium">
+              Trusted by fintech, B2B SaaS, and healthtech teams in production
+            </p>
+          </section>
+        </ScrollReveal>
+
+        {/* Footer */}
+        <footer className="mt-16 sm:mt-32 pt-8 sm:pt-12 text-center">
+          <div className="hairline mb-6 sm:mb-8" />
+          <p className="text-xs sm:text-sm text-neutral-500 dark:text-neutral-400 font-medium px-4">
+            © {new Date().getFullYear()} Nithin Reddy Poola. All rights reserved.
+          </p>
+        </footer>
+      </main>
     </div>
   );
 }

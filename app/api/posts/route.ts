@@ -1,17 +1,30 @@
 import { revalidatePath } from "next/cache";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
+import { Prisma } from "@prisma/client";
 
 import { prisma } from "@/lib/db";
 import { authOptions } from "@/lib/auth";
 import { postCreateSchema } from "@/lib/validations/post";
+import { getFallbackPosts } from "@/lib/fallback-data";
 
 export async function GET() {
-  const posts = await prisma.post.findMany({
-    orderBy: { createdAt: "desc" },
-  });
+  try {
+    const posts = await prisma.post.findMany({
+      orderBy: { createdAt: "desc" },
+    });
 
-  return NextResponse.json(posts);
+    if (posts.length > 0) {
+      return NextResponse.json(posts);
+    }
+  } catch (error) {
+    console.warn("[api/posts] Falling back to static content", error);
+  }
+
+  const fallbackPosts = getFallbackPosts();
+  return NextResponse.json(fallbackPosts, {
+    headers: { "x-data-source": "fallback" },
+  });
 }
 
 export async function POST(req: Request) {
@@ -59,8 +72,13 @@ export async function POST(req: Request) {
 
     return NextResponse.json(post, { status: 201 });
   } catch (error) {
-    if (error && typeof error === "object" && "code" in error && (error as { code?: string }).code === "P2002") {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === "P2002") {
       return NextResponse.json({ error: "Slug already exists" }, { status: 409 });
+    }
+
+    if (error instanceof Prisma.PrismaClientInitializationError) {
+      console.error("Failed to create post — database unavailable", error);
+      return NextResponse.json({ error: "Database unavailable" }, { status: 503 });
     }
 
     console.error("Failed to create post", error);

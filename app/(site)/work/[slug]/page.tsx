@@ -8,6 +8,7 @@ import { prisma } from "@/lib/db";
 import { constructMetadata, getOgImageUrl, siteConfig } from "@/lib/seo";
 import { ReadingProgress } from "@/components/reading-progress";
 import { TableOfContents } from "@/components/table-of-contents";
+import { getFallbackProjectBySlug } from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
@@ -17,14 +18,80 @@ type Props = {
   };
 };
 
-async function getProjectFromParams(slug: string) {
-  return await prisma.project.findUnique({
-    where: { slug },
-  });
+type ProjectViewModel = {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  coverImage: string | null;
+  gallery: string[];
+  repoUrl: string | null;
+  demoUrl: string | null;
+  tech: string[];
+  featured: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+async function getProjectFromParams(slug: string): Promise<ProjectViewModel | null> {
+  try {
+    const project = await prisma.project.findUnique({
+      where: { slug },
+    });
+
+    if (!project) {
+      return null;
+    }
+
+    return {
+      id: project.id,
+      title: project.title,
+      slug: project.slug,
+      summary: project.summary,
+      description: project.description,
+      coverImage: project.coverImage ?? null,
+      gallery: project.gallery ?? [],
+      repoUrl: project.repoUrl ?? null,
+      demoUrl: project.demoUrl ?? null,
+      tech: project.tech ?? [],
+      featured: project.featured ?? false,
+      createdAt: project.createdAt,
+      updatedAt: project.updatedAt,
+    };
+  } catch (error) {
+    console.warn(`[work/${slug}] Unable to query project; using fallback`, error);
+    return null;
+  }
+}
+
+function getFallbackProject(slug: string): ProjectViewModel | null {
+  const fallback = getFallbackProjectBySlug(slug);
+  if (!fallback) {
+    return null;
+  }
+
+  const createdAt = new Date(fallback.createdAt);
+  return {
+    id: fallback.id,
+    title: fallback.title,
+    slug: fallback.slug,
+    summary: fallback.summary,
+    description: fallback.description,
+    coverImage: fallback.coverImage,
+    gallery: fallback.gallery,
+    repoUrl: fallback.repoUrl,
+    demoUrl: fallback.demoUrl,
+    tech: fallback.tech,
+    featured: fallback.featured,
+    createdAt,
+    updatedAt: createdAt,
+  };
 }
 
 export async function generateMetadata({ params }: Props) {
-  const project = await getProjectFromParams(params.slug);
+  const project = (await getProjectFromParams(params.slug)) ?? getFallbackProject(params.slug);
+
   if (!project) {
     return constructMetadata({
       title: "Case study",
@@ -46,11 +113,13 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ProjectPage({ params }: Props) {
-  const project = await getProjectFromParams(params.slug);
+  const project = (await getProjectFromParams(params.slug)) ?? getFallbackProject(params.slug);
 
   if (!project) {
     notFound();
   }
+
+  const isFallback = project.id.startsWith("fallback-");
 
   return (
     <>
@@ -186,6 +255,11 @@ export default async function ProjectPage({ params }: Props) {
             {/* Sidebar with TOC */}
             <aside className="hidden lg:block">
               <TableOfContents />
+              {isFallback && (
+                <div className="mt-6 text-xs text-muted-foreground surface-card border border-amber-200/60 dark:border-amber-500/40 rounded-xl p-3">
+                  ⚠️ This case study is rendered from static MDX content while the database is offline.
+                </div>
+              )}
             </aside>
           </div>
         </div>

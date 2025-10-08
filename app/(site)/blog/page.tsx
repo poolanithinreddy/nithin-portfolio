@@ -1,12 +1,11 @@
 // app/(site)/blog/page.tsx
 import type { Route } from "next";
 import Link from "next/link";
-
-import { allPosts } from "contentlayer/generated";
 import ClientList from "@/app/(site)/blog/ClientList";
 
 import { prisma } from "@/lib/db";
 import { constructMetadata, siteConfig } from "@/lib/seo";
+import { getFallbackPosts } from "@/lib/fallback-data";
 
 export const revalidate = 0;
 
@@ -33,21 +32,29 @@ const fmt = (d: Date) =>
   });
 
 export default async function BlogIndex() {
-  const posts = await prisma.post.findMany({
-    where: { published: true },
-    orderBy: { createdAt: "desc" },
-  });
+  let posts = [] as Awaited<ReturnType<typeof prisma.post.findMany>>;
+  let usedFallback = false;
+
+  try {
+    posts = await prisma.post.findMany({
+      where: { published: true },
+      orderBy: { createdAt: "desc" },
+    });
+  } catch (error) {
+    console.warn("[blog/page] Unable to query posts; using fallback", error);
+    posts = [];
+    usedFallback = true;
+  }
 
   type BlogPost = (typeof posts)[number];
 
   // Fallback to Contentlayer MDX when Prisma has nothing
   const mdxFallback =
     posts.length === 0
-      ? [...allPosts].sort(
-          (a, b) =>
-            new Date(b.publishedAt).getTime() -
-            new Date(a.publishedAt).getTime()
-        )
+      ? getFallbackPosts().map((post) => ({
+          ...post,
+          url: post.url as Route,
+        }))
       : [];
 
   // Structured data (SEO): Blog + ItemList
@@ -179,14 +186,14 @@ export default async function BlogIndex() {
               >
                 <div className="pointer-events-none absolute -inset-0.5 rounded-[inherit] bg-gradient-to-r from-emerald-500/10 via-cyan-500/10 to-blue-500/10 opacity-0 group-hover:opacity-100 blur-xl transition" />
                 <p className="text-xs uppercase tracking-[0.16em] text-muted-foreground">
-                  {new Date(post.publishedAt).toLocaleDateString()}
+                  {new Date(post.createdAt).toLocaleDateString()}
                 </p>
                 <h3 className="mt-2 text-xl font-bold leading-snug transition-colors group-hover:text-accent-a">
                   {post.title}
                 </h3>
-                {post.summary ? (
+                {post.excerpt ? (
                   <p className="mt-2 text-sm text-neutral-700 dark:text-neutral-300 line-clamp-3">
-                    {post.summary}
+                    {post.excerpt}
                   </p>
                 ) : null}
                 <div className="mt-4 flex items-center gap-2 text-xs text-muted-foreground">
@@ -197,7 +204,10 @@ export default async function BlogIndex() {
             ))}
 
             <p className="sm:col-span-2 text-sm text-muted-foreground surface-card p-4 rounded-xl border border-neutral-200/50 dark:border-neutral-800/50">
-              📝 Showing legacy MDX posts. New entries appear instantly after publishing through the admin panel.
+              📝 Showing content from static MDX files.
+              {usedFallback
+                ? " The database is currently unreachable, so these entries are served from version-controlled content."
+                : " New entries appear instantly after publishing through the admin panel."}
             </p>
           </div>
         ) : (

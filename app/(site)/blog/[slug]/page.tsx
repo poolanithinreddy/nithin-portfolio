@@ -20,9 +20,14 @@ type BlogPostPageProps = {
 };
 
 async function getPost(slug: string) {
-  return prisma.post.findUnique({
-    where: { slug },
-  });
+  try {
+    return await prisma.post.findUnique({
+      where: { slug },
+    });
+  } catch (error) {
+    console.warn(`[blog/${slug}] Unable to query post; using fallback`, error);
+    return null;
+  }
 }
 
 export async function generateMetadata({ params }: BlogPostPageProps) {
@@ -196,6 +201,9 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             {/* Sidebar with TOC */}
             <aside className="hidden lg:block">
               <TableOfContents />
+              <div className="mt-6 text-xs text-muted-foreground surface-card border border-amber-200/60 dark:border-amber-500/40 rounded-xl p-3">
+                ⚠️ This article is rendered from static MDX content while the database is offline.
+              </div>
             </aside>
           </div>
         </div>

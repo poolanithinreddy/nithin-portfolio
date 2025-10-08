@@ -6,6 +6,7 @@ import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db";
 import { constructMetadata, siteConfig } from "@/lib/seo";
 import { WorkFilters } from "@/components/work-filters";
+import { getFallbackProjects } from "@/lib/fallback-data";
 
 export const dynamic = "force-dynamic";
 
@@ -23,13 +24,72 @@ export const metadata = constructMetadata({
   ],
 });
 
+type ProjectViewModel = {
+  id: string;
+  title: string;
+  slug: string;
+  summary: string;
+  description: string;
+  coverImage: string | null;
+  gallery: string[];
+  repoUrl: string | null;
+  demoUrl: string | null;
+  tech: string[];
+  featured: boolean;
+  createdAt: Date;
+};
+
 export default async function WorkPage() {
-  const projects = await prisma.project.findMany({
-    orderBy: { createdAt: "desc" },
-  });
-  
-  const featuredProjects = projects.filter((p: { featured: boolean }) => p.featured);
-  const regularProjects = projects.filter((p: { featured: boolean }) => !p.featured);
+  let projects: ProjectViewModel[] = [];
+  let usedFallback = false;
+
+  try {
+    const dbProjects = await prisma.project.findMany({
+      orderBy: { createdAt: "desc" },
+    });
+
+    projects = dbProjects.map((project) => ({
+      id: project.id,
+      title: project.title,
+      slug: project.slug,
+      summary: project.summary,
+      description: project.description,
+      coverImage: project.coverImage ?? null,
+      gallery: project.gallery ?? [],
+      repoUrl: project.repoUrl ?? null,
+      demoUrl: project.demoUrl ?? null,
+      tech: project.tech ?? [],
+      featured: project.featured ?? false,
+      createdAt: project.createdAt,
+    }));
+  } catch (error) {
+    console.warn("[work/page] Unable to query projects; using fallback", error);
+    usedFallback = true;
+  }
+
+  if (projects.length === 0) {
+    const fallbackProjects = getFallbackProjects();
+    if (fallbackProjects.length > 0) {
+      projects = fallbackProjects.map((project) => ({
+        id: project.id,
+        title: project.title,
+        slug: project.slug,
+        summary: project.summary,
+        description: project.description,
+        coverImage: project.coverImage,
+        gallery: project.gallery,
+        repoUrl: project.repoUrl,
+        demoUrl: project.demoUrl,
+        tech: project.tech,
+        featured: project.featured,
+        createdAt: new Date(project.createdAt),
+      }));
+      usedFallback = true;
+    }
+  }
+
+  const featuredProjects = projects.filter((p) => p.featured);
+  const regularProjects = projects.filter((p) => !p.featured);
   
   return (
     <>
@@ -72,6 +132,12 @@ export default async function WorkPage() {
         <div className="mb-12">
           <WorkFilters />
         </div>
+
+        {usedFallback && (
+          <div className="surface-card border border-amber-200/60 dark:border-amber-500/40 text-amber-900 dark:text-amber-200 rounded-2xl p-4 mb-10 text-sm">
+            ⚠️ Displaying projects from static MDX content while the primary database is unreachable.
+          </div>
+        )}
 
         {/* Featured Projects */}
         {featuredProjects.length > 0 && (

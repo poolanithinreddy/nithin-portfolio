@@ -12,6 +12,13 @@ jobs:
     runs-on: ubuntu-latest
     env:
       NPM_CONFIG_LEGACY_PEER_DEPS: "true"
+      # Dummy environment variables for build
+      DATABASE_URL: "postgresql://dummy:dummy@localhost:5432/dummy"
+      AUTH_SECRET: "dummy-secret-for-build"
+      ADMIN_EMAIL: "admin@example.com"
+      ADMIN_PASSWORD_HASH: "$2b$10$dummy"
+      NEXT_PUBLIC_SUPABASE_URL: "https://dummy.supabase.co"
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: "dummy-key"
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { ArrowRight, Sparkles, Zap, Database, Server, Cloud } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { prisma } from "@/lib/db";
+import { safeDbQuery } from "@/lib/db-utils";
 import { allPosts, type Post } from "contentlayer/generated";
 import ConstellationTitle from "@/components/hero/ConstellationTitle";
 import { SpotlightCursor } from "@/components/effects/SpotlightCursor";
@@ -17,6 +18,7 @@ import { BeforeAfterSlider } from "@/components/performance/BeforeAfterSlider";
 import { SocialProof } from "@/components/social/SocialProof";
 
 export const dynamic = "force-dynamic";
+export const revalidate = 0;
 
 const fmt = (d: string | Date) =>
   new Date(d).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
@@ -32,7 +34,12 @@ type Project = {
 };
 
 export default async function HomePage() {
-  const projects = await prisma.project.findMany({ orderBy: { createdAt: "desc" }, take: 7 });
+  // Use safe database query with fallback
+  const projects = await safeDbQuery(
+    () => prisma.project.findMany({ orderBy: { createdAt: "desc" }, take: 7 }),
+    [] as Project[]
+  );
+  
   const posts = [...allPosts]
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .slice(0, 3);
@@ -206,43 +213,63 @@ export default async function HomePage() {
             </ScrollReveal>
 
             <ScrollReveal delay={100}>
-              <ProductTheater project={featured} />
+              {featured && featured.summary ? (
+                <ProductTheater project={{
+                  title: featured.title,
+                  slug: featured.slug,
+                  summary: featured.summary
+                }} />
+              ) : (
+                <div className="glass p-8 radius-lg text-center">
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    Featured projects will be available once the database is connected.
+                  </p>
+                </div>
+              )}
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
-              <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mt-6 sm:mt-10">
-                <div className="md:col-span-2 glass p-5 sm:p-8 radius-lg inner-glow">
-                  <h2 className="headline-lg text-2xl sm:text-3xl lg:text-4xl mb-1">{featured.title}</h2>
-                  {featured.summary && (
-                    <p className="mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">
-                      {featured.summary}
-                    </p>
-                  )}
-                  {featured.tech?.length ? (
-                    <div className="mt-5 sm:mt-8 flex flex-wrap gap-2">
-                      {featured.tech.slice(0, 8).map((t: string) => (
-                        <span key={t} className="chip">
-                          {t}
-                        </span>
-                      ))}
-                    </div>
-                  ) : null}
-                </div>
-
-                <div className="surface p-4 sm:p-6 radius-lg font-mono text-xs sm:text-sm leading-relaxed text-neutral-800 dark:text-neutral-200 inner-glow">
-                  <div className="mb-2 sm:mb-3 flex items-center gap-2 text-[10px] sm:text-xs kicker">
-                    <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
-                    <span>System Status</span>
+              {featured ? (
+                <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mt-6 sm:mt-10">
+                  <div className="md:col-span-2 glass p-5 sm:p-8 radius-lg inner-glow">
+                    <h2 className="headline-lg text-2xl sm:text-3xl lg:text-4xl mb-1">{featured.title}</h2>
+                    {featured.summary && (
+                      <p className="mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">
+                        {featured.summary}
+                      </p>
+                    )}
+                    {featured.tech?.length ? (
+                      <div className="mt-5 sm:mt-8 flex flex-wrap gap-2">
+                        {featured.tech.slice(0, 8).map((t: string) => (
+                          <span key={t} className="chip">
+                            {t}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                   </div>
-                  <pre className="whitespace-pre-wrap text-[10px] sm:text-xs">
+
+                  <div className="surface p-4 sm:p-6 radius-lg font-mono text-xs sm:text-sm leading-relaxed text-neutral-800 dark:text-neutral-200 inner-glow">
+                    <div className="mb-2 sm:mb-3 flex items-center gap-2 text-[10px] sm:text-xs kicker">
+                      <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+                      <span>System Status</span>
+                    </div>
+                    <pre className="whitespace-pre-wrap text-[10px] sm:text-xs">
 {`✓ Status:    Live in Production
 ✓ Stack:     ${featured.tech?.slice(0, 3).join(" • ") || "Full-stack"}
 ✓ Deploy:    Automated CI/CD
 ✓ Perf:      <100ms p95 latency
 ✓ Scale:     Cloud-native arch`}
-                  </pre>
+                    </pre>
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <div className="glass p-8 radius-lg text-center mt-6 sm:mt-10">
+                  <p className="text-neutral-600 dark:text-neutral-400">
+                    Project details will be loaded from the database.
+                  </p>
+                </div>
+              )}
             </ScrollReveal>
           </section>
         )}

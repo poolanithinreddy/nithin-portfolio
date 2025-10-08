@@ -18,7 +18,6 @@ import { BeforeAfterSlider } from "@/components/performance/BeforeAfterSlider";
 import { SocialProof } from "@/components/social/SocialProof";
 
 export const dynamic = "force-dynamic";
-export const revalidate = 0;
 
 const fmt = (d: string | Date) =>
   new Date(d).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });

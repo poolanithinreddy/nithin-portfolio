@@ -1,5 +1,14 @@
-import type { Project } from "contentlayer/generated";
-import { allProjects, allPosts } from "contentlayer/generated";
+type ContentlayerExports = typeof import("contentlayer/generated");
+
+let contentlayerPromise: Promise<ContentlayerExports> | null = null;
+
+async function loadContentlayer(): Promise<ContentlayerExports> {
+  if (!contentlayerPromise) {
+    contentlayerPromise = import("../.contentlayer/generated/index.mjs") as Promise<ContentlayerExports>;
+  }
+
+  return contentlayerPromise!;
+}
 
 function toIsoFromYear(year?: number): string {
   if (!year) {
@@ -14,7 +23,9 @@ function toIsoFromYear(year?: number): string {
   return date.toISOString();
 }
 
-function pickRepoLink(links: Project["links"] | undefined): string | null {
+type ProjectDoc = ContentlayerExports["allProjects"][number];
+
+function pickRepoLink(links: ProjectDoc["links"] | undefined): string | null {
   if (!links?.length) {
     return null;
   }
@@ -24,7 +35,7 @@ function pickRepoLink(links: Project["links"] | undefined): string | null {
   return repo?.href ?? null;
 }
 
-function pickDemoLink(links: Project["links"] | undefined): string | null {
+function pickDemoLink(links: ProjectDoc["links"] | undefined): string | null {
   if (!links?.length) {
     return null;
   }
@@ -49,7 +60,9 @@ export type FallbackProject = {
   demoUrl: string | null;
 };
 
-export function getFallbackProjects(): FallbackProject[] {
+export async function getFallbackProjects(): Promise<FallbackProject[]> {
+  const { allProjects } = await loadContentlayer();
+
   return [...allProjects]
     .sort((a, b) => {
       const aDate = toIsoFromYear(a.year);
@@ -72,8 +85,9 @@ export function getFallbackProjects(): FallbackProject[] {
     }));
 }
 
-export function getFallbackProjectBySlug(slug: string): FallbackProject | undefined {
-  return getFallbackProjects().find((project) => project.slug === slug);
+export async function getFallbackProjectBySlug(slug: string): Promise<FallbackProject | undefined> {
+  const projects = await getFallbackProjects();
+  return projects.find((project) => project.slug === slug);
 }
 
 export type FallbackPost = {
@@ -82,13 +96,16 @@ export type FallbackPost = {
   slug: string;
   excerpt: string;
   content: string;
+  code: string;
   coverImage: string | null;
   published: boolean;
   createdAt: string;
   url: string;
 };
 
-export function getFallbackPosts(): FallbackPost[] {
+export async function getFallbackPosts(): Promise<FallbackPost[]> {
+  const { allPosts } = await loadContentlayer();
+
   return [...allPosts]
     .sort((a, b) => new Date(b.publishedAt).getTime() - new Date(a.publishedAt).getTime())
     .map((post) => ({
@@ -97,6 +114,7 @@ export function getFallbackPosts(): FallbackPost[] {
       slug: post.slug,
       excerpt: post.summary,
       content: post.body.raw,
+      code: post.body.code,
       coverImage: null,
       published: true,
       createdAt: new Date(post.publishedAt).toISOString(),
@@ -104,6 +122,7 @@ export function getFallbackPosts(): FallbackPost[] {
     }));
 }
 
-export function getFallbackPostBySlug(slug: string): FallbackPost | undefined {
-  return getFallbackPosts().find((post) => post.slug === slug);
+export async function getFallbackPostBySlug(slug: string): Promise<FallbackPost | undefined> {
+  const posts = await getFallbackPosts();
+  return posts.find((post) => post.slug === slug);
 }

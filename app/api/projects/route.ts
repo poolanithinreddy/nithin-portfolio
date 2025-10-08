@@ -21,7 +21,7 @@ export async function GET() {
     console.warn("[api/projects] Falling back to static content", error);
   }
 
-  const fallbackProjects = getFallbackProjects();
+  const fallbackProjects = await getFallbackProjects();
   return NextResponse.json(fallbackProjects, {
     headers: { "x-data-source": "fallback" },
   });

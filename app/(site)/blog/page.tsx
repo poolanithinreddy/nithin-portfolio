@@ -51,7 +51,7 @@ export default async function BlogIndex() {
   // Fallback to Contentlayer MDX when Prisma has nothing
   const mdxFallback =
     posts.length === 0
-      ? getFallbackPosts().map((post) => ({
+      ? (await getFallbackPosts()).map((post) => ({
           ...post,
           url: post.url as Route,
         }))

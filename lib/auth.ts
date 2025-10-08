@@ -5,21 +5,36 @@ import { getServerSession } from "next-auth";
 import type { JWT } from "next-auth/jwt";
 import Credentials from "next-auth/providers/credentials";
 
-const adminEmail = process.env.ADMIN_EMAIL;
-const adminPasswordHash = process.env.ADMIN_PASSWORD_HASH;
+function normalizeEnvValue(value?: string) {
+  if (!value) return undefined;
+  const trimmed = value.trim();
+  // Remove wrapping single or double quotes that may be accidentally included
+  // when copying values into hosting provider dashboards.
+  return trimmed.replace(/^['"]+|['"]+$/g, "");
+}
+
+const adminEmail = normalizeEnvValue(process.env.ADMIN_EMAIL);
+const adminPasswordHash = normalizeEnvValue(process.env.ADMIN_PASSWORD_HASH);
+
+const rawAuthSecret = process.env.AUTH_SECRET ?? process.env.NEXTAUTH_SECRET;
+const normalizedAuthSecret = normalizeEnvValue(rawAuthSecret);
+const isAuthSecretConfigured = Boolean(normalizedAuthSecret);
 const authSecret =
-  process.env.AUTH_SECRET ??
-  process.env.NEXTAUTH_SECRET ??
-  // Provide a deterministic fallback so builds do not fail even if the secret isn't configured.
-  // This should be overridden in production via environment variables.
+  normalizedAuthSecret ??
+  // Provide a deterministic fallback so local builds do not fail even if the secret isn't configured.
+  // This must be overridden in production via environment variables.
   "fallback-nextauth-secret-change-me";
 
 if (!adminEmail || !adminPasswordHash) {
   console.warn("ADMIN_EMAIL and ADMIN_PASSWORD_HASH must be set for admin login to function.");
 }
 
-if (!process.env.AUTH_SECRET && !process.env.NEXTAUTH_SECRET) {
-  console.warn("AUTH_SECRET or NEXTAUTH_SECRET was not set. Using fallback secret; set a secure secret in production.");
+if (!isAuthSecretConfigured) {
+  const guidance = "AUTH_SECRET or NEXTAUTH_SECRET must be configured to sign NextAuth JWTs.";
+  if (process.env.NODE_ENV === "production") {
+    throw new Error(`${guidance} Update your deployment environment to include a 32+ character random secret (no quotes).`);
+  }
+  console.warn(`${guidance} Using a fallback secret for local development only.`);
 }
 
 export const authOptions: AuthOptions = {

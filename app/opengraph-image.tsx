@@ -40,7 +40,7 @@ export default function Image() {
         <div style={{ display: "flex", flexDirection: "column", gap: "32px" }}>
           <span
             style={{
-              display: "inline-flex",
+              display: "flex",
               alignItems: "center",
               color: "#1e3a8a",
               fontSize: 24,

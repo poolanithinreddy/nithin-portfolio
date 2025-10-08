@@ -65,8 +65,8 @@ async function getProjectFromParams(slug: string): Promise<ProjectViewModel | nu
   }
 }
 
-function getFallbackProject(slug: string): ProjectViewModel | null {
-  const fallback = getFallbackProjectBySlug(slug);
+async function getFallbackProject(slug: string): Promise<ProjectViewModel | null> {
+  const fallback = await getFallbackProjectBySlug(slug);
   if (!fallback) {
     return null;
   }
@@ -90,7 +90,8 @@ function getFallbackProject(slug: string): ProjectViewModel | null {
 }
 
 export async function generateMetadata({ params }: Props) {
-  const project = (await getProjectFromParams(params.slug)) ?? getFallbackProject(params.slug);
+  const project =
+    (await getProjectFromParams(params.slug)) ?? (await getFallbackProject(params.slug));
 
   if (!project) {
     return constructMetadata({
@@ -113,7 +114,8 @@ export async function generateMetadata({ params }: Props) {
 }
 
 export default async function ProjectPage({ params }: Props) {
-  const project = (await getProjectFromParams(params.slug)) ?? getFallbackProject(params.slug);
+  const project =
+    (await getProjectFromParams(params.slug)) ?? (await getFallbackProject(params.slug));
 
   if (!project) {
     notFound();

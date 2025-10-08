@@ -37,13 +37,15 @@ The following routes are protected by middleware:
 Add these to your `.env.local` file:
 
 ```bash
-# Required for NextAuth session encryption
+# Required for NextAuth session encryption (paste the raw value without wrapping quotes)
 AUTH_SECRET=your-random-secret-key-here
 
-# Admin credentials
+# Admin credentials (values should not include surrounding quotes)
 ADMIN_EMAIL=your-email@example.com
 ADMIN_PASSWORD_HASH=your-bcrypt-hashed-password-here
 ```
+
+> **Heads-up:** Some hosting dashboards (including Vercel) automatically add quotes if you paste them. Enter the values exactly as shown above—no leading/trailing spaces or quotes—or authentication will fail.
 
 ### Generating a Secure AUTH_SECRET
 

@@ -3,6 +3,8 @@ import Link from "next/link";
 import { ArrowRight, Sparkles } from "lucide-react";
 import { allPosts } from "contentlayer/generated";
 
+export const revalidate = 60; // keep this page static with ISR (no server-only stuff)
+
 const fmt = (d: string | Date) =>
   new Date(d).toLocaleDateString(undefined, { month: "short", day: "2-digit", year: "numeric" });
 
@@ -117,7 +119,7 @@ export default function HomePage() {
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
             {/* Project placeholders - these will be populated from database once live */}
             <div className="group p-6 rounded-lg border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors">
-              <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
                 Cloud Infrastructure Platform
               </h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
@@ -135,7 +137,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="group p-6 rounded-lg border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors">
-              <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
                 Full-Stack Web Application
               </h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
@@ -153,7 +155,7 @@ export default function HomePage() {
               </div>
             </div>
             <div className="group p-6 rounded-lg border border-neutral-200 hover:border-neutral-300 dark:border-neutral-800 dark:hover:border-neutral-700 transition-colors">
-              <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+              <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
                 Machine Learning Pipeline
               </h3>
               <p className="text-neutral-600 dark:text-neutral-400 text-sm mb-4">
@@ -197,7 +199,7 @@ export default function HomePage() {
                   href={`/blog/${post.slug}` as Route}
                   className="group p-6 rounded-lg bg-white dark:bg-neutral-800 border border-neutral-200 dark:border-neutral-700 hover:shadow-lg transition-shadow"
                 >
-                  <h3 className="text-lg font-semibold mb-2 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
+                  <h3 className="text-lg font-semibold mb-2 text-blue-500 dark:text-blue-400">
                     {post.title}
                   </h3>
                   {post.summary && (

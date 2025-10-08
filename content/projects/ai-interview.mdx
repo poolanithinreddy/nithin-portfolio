@@ -1,0 +1,42 @@
+---
+title: "Real-Time AI Interview"
+summary: "WebRTC interview simulator that streams candidate audio to GPT evaluators for live feedback, scoring, and transcripts."
+role: "Full-stack engineer"
+stack:
+  - "Next.js"
+  - "Node/WebSocket"
+  - "Redis"
+  - "OpenAI Realtime"
+  - "PostgreSQL"
+year: 2024
+featured: false
+timeline: "2024"
+stats:
+  - "Reduced interviewer prep time by 40%"
+  - "Under 300ms round-trip latency for feedback"
+links:
+  - title: "Demo request"
+    href: "mailto:nithinpoolareddy@gmail.com?subject=AI%20Interview%20Demo"
+---
+
+## Context & Goals
+
+Interview coaching platforms often lack live, contextual feedback. This project delivers a browser-based interviewer that listens, scores, and surfaces coaching tips in real time without sacrificing privacy or stability.
+
+## Architecture Overview
+
+- **Client**: Next.js front-end with WebRTC publisher, noise gating, and timeline UI.
+- **Signaling**: Node server establishing WebRTC sessions, handling TURN/STUN negotiation, and streaming audio frames to evaluators.
+- **Inference layer**: GPT-based evaluators running in parallel, enriching transcripts with rubric checks (communication, technical depth, empathy).
+- **Storage**: Redis for transient session data, PostgreSQL for final reports, highlights, and improvement suggestions.
+
+## Highlights
+
+- Built adaptive scoring that adjusts rubrics mid-session based on candidate responses and job role.
+- Implemented safe-words and privacy controls; sessions can redact sensitive topics before saving transcripts.
+- Added playback controls that pair video segments with constructive coaching cards.
+
+## Next Steps
+
+- Expand to support collaborative interviewer panels with shared annotations.
+- Integrate HRIS exports to close the loop on performance tracking.

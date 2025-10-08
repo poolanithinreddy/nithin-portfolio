@@ -1,0 +1,33 @@
+---
+title: "vCenter golden templates playbook"
+summary: "How we standardized VMware lab images with post-provision scripts, compliance checks, and automated health reporting."
+publishedAt: "2024-04-28"
+tags:
+  - "VMware"
+  - "Automation"
+  - "DevOps"
+---
+
+Faculty needed consistent lab environments that could reset every week without manual babysitting. Golden templates gave us the consistency we wanted, but the playbook required a few careful steps.
+
+## Step 1: Build immutable baselines
+
+Start with a clean OS install, capture checksums, and run CIS hardening scripts. Every template gets a metadata file explaining who built it, what scripts ran, and which courses consume it.
+
+## Step 2: Post-provision customization
+
+A provisioning worker triggers PowerCLI + Ansible scripts immediately after cloning:
+
+- Inject course-specific SSH keys and jump-host routes
+- Register agents for logging/metrics
+- Run smoke tests (DNS, outbound, identity) before marking the VM as ready
+
+## Step 3: Continuous validation
+
+A nightly job rehydrates sample VMs from each template, runs compliance scans, and feeds the results into Grafana dashboards. If drift appears, we can flag the template, notify owners, and block new labs until it’s healthy.
+
+## Step 4: Retirement workflow
+
+When a template ages out, we snapshot it, store the artifacts in object storage, and document the replacement in the knowledge base. Faculty see the impact in the portal release notes, keeping everyone aligned.
+
+Templates went from “mystery meat” to a predictable, observable backbone for CyberRange labs.

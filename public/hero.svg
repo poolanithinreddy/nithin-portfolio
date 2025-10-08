@@ -1,0 +1,76 @@
+<svg width="1600" height="900" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8fafc;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e2e8f0;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="accent" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#6366f1;stop-opacity:1" />
+      <stop offset="50%" style="stop-color:#8b5cf6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1600" height="900" fill="url(#bg)"/>
+  
+  <!-- Grid pattern -->
+  <g opacity="0.4">
+    <path d="M0 0 L1600 0" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M0 150 L1600 150" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M0 300 L1600 300" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M0 450 L1600 450" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M0 600 L1600 600" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M0 750 L1600 750" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M0 900 L1600 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    
+    <path d="M0 0 L0 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M200 0 L200 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M400 0 L400 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M600 0 L600 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M800 0 L800 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M1000 0 L1000 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M1200 0 L1200 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M1400 0 L1400 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+    <path d="M1600 0 L1600 900" stroke="#cbd5e1" stroke-width="1" fill="none"/>
+  </g>
+  
+  <!-- Code window mockup -->
+  <g transform="translate(200, 150)">
+    <!-- Window -->
+    <rect x="0" y="0" width="1200" height="600" rx="12" fill="white" opacity="0.9"/>
+    <rect x="0" y="0" width="1200" height="40" rx="12" fill="#f1f5f9"/>
+    
+    <!-- Window controls -->
+    <circle cx="20" cy="20" r="6" fill="#ef4444"/>
+    <circle cx="40" cy="20" r="6" fill="#f59e0b"/>
+    <circle cx="60" cy="20" r="6" fill="#10b981"/>
+    
+    <!-- Code lines with gradient -->
+    <rect x="40" y="80" width="400" height="8" rx="4" fill="url(#accent)" opacity="0.7"/>
+    <rect x="40" y="120" width="300" height="8" rx="4" fill="#94a3b8" opacity="0.5"/>
+    <rect x="40" y="160" width="500" height="8" rx="4" fill="#94a3b8" opacity="0.5"/>
+    <rect x="40" y="200" width="350" height="8" rx="4" fill="url(#accent)" opacity="0.6"/>
+    <rect x="40" y="240" width="450" height="8" rx="4" fill="#94a3b8" opacity="0.5"/>
+    
+    <rect x="640" y="80" width="520" height="280" rx="8" fill="#f8fafc"/>
+    <rect x="660" y="100" width="200" height="12" rx="6" fill="url(#accent)" opacity="0.3"/>
+    <rect x="660" y="140" width="280" height="8" rx="4" fill="#cbd5e1" opacity="0.6"/>
+    <rect x="660" y="170" width="320" height="8" rx="4" fill="#cbd5e1" opacity="0.6"/>
+    <rect x="660" y="200" width="240" height="8" rx="4" fill="#cbd5e1" opacity="0.6"/>
+  </g>
+  
+  <!-- Floating elements -->
+  <circle cx="120" cy="100" r="8" fill="url(#accent)" opacity="0.3"/>
+  <circle cx="1480" cy="180" r="12" fill="url(#accent)" opacity="0.25"/>
+  <circle cx="1420" cy="780" r="10" fill="url(#accent)" opacity="0.2"/>
+  <circle cx="180" cy="820" r="6" fill="url(#accent)" opacity="0.3"/>
+  
+  <!-- Text -->
+  <text x="800" y="480" font-family="system-ui, -apple-system, sans-serif" font-size="32" font-weight="600" text-anchor="middle" fill="#334155">
+    Premium Portfolio
+  </text>
+  <text x="800" y="520" font-family="system-ui, -apple-system, sans-serif" font-size="18" text-anchor="middle" fill="#64748b">
+    Crafted with Next.js, TypeScript & Tailwind CSS
+  </text>
+</svg>

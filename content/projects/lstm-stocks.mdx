@@ -1,0 +1,42 @@
+---
+title: "LSTM Stocks Lab"
+summary: "Quant research playground with LSTM pipelines, vector search on fundamentals, and automated backtesting."
+role: "Systems engineer"
+stack:
+  - "Next.js"
+  - "Python"
+  - "TensorFlow"
+  - "Redis"
+  - "Docker"
+year: 2022
+featured: false
+timeline: "2022"
+stats:
+  - "30+ strategies evaluated nightly"
+  - "Backtests orchestrated via GitHub Actions"
+links:
+  - title: "Request repo access"
+    href: "mailto:nithinpoolareddy@gmail.com?subject=LSTM%20Lab"
+---
+
+## Context & Goals
+
+Personal research lab for equities forecasting with a focus on reproducibility. Provides a workflow where data scientists can prototype models, run CI-backed evaluations, and visualize results in dashboards.
+
+## Architecture
+
+- **Data ingestion**: Batch jobs pull price data, fundamentals, and sentiment, storing them in Parquet with metadata catalogs.
+- **Model training**: TensorFlow LSTM models, hyperparameter sweeps via Python scripts, and Dockerized workloads ready for cloud scaling.
+- **Vector search**: Redis Stack stores embeddings for fundamental similarity, powering peer analysis.
+- **Frontend**: Next.js dashboards for equity watchlists, performance attribution, and error analysis.
+
+## Highlights
+
+- GitHub Actions orchestrate nightly training/backtesting with result publishing to dashboards.
+- Experiment registry built with SQLite + Prisma for fast comparisons.
+- Docker Compose environment mirrors CI runs, making local iteration trivial.
+
+## What’s next
+
+- Port inference layer to ONNX Runtime for faster scoring.
+- Integrate with broker APIs for paper trading.

@@ -1,0 +1,48 @@
+---
+title: "AgentX Automation Platform"
+summary: "Multi-agent orchestration layer with workflow builder, observability, and guardrails for AI-powered operations."
+role: "Lead engineer"
+stack:
+  - "Next.js"
+  - "tRPC"
+  - "PostgreSQL"
+  - "LangChain"
+  - "Redis"
+  - "Docker"
+year: 2024
+featured: false
+timeline: "2024"
+stats:
+  - "Automated 60% of manual analyst workflows"
+  - "Live agent runs observable with per-step metrics"
+links:
+  - title: "Request access"
+    href: "mailto:nithinpoolareddy@gmail.com?subject=AgentX%20Demo"
+---
+
+## Context & Goals
+
+Created AgentX to help ops analysts run repeatable automations powered by LLM agents while enforcing safety guardrails. The platform allows teams to design flows, chain tools, observe execution, and replay results with approvals in place.
+
+## Architecture
+
+- **Builder UI**: drag-and-drop flow canvas in Next.js with React Flow, saving definitions to PostgreSQL.
+- **tRPC API**: strongly typed endpoints for run management, approvals, and history.
+- **Runtime**: LangChain multi-agent orchestrations with Redis Streams for step events and WebSocket fan-out to the UI.
+- **Guardrails**: allow/deny lists, prompt injection detection, and human-in-the-loop checkpoints.
+
+## Highlights
+
+- Implemented execution timeline viewer with diff tooling to compare agent runs side by side.
+- Added per-tool sandboxing using Docker sidecars, streaming logs back to the frontend for troubleshooting.
+- Integrated with Slack for approvals and status updates, using signed requests and rate-limiting middleware.
+
+## Results
+
+- Ops teams automated onboarding workflows (account provisioning, documentation sync) and achieved measurable cycle time reductions.
+- Incident response playbooks now execute reproducibly with audit events attached to every tool call.
+
+## What I’d do next
+
+- Expand the action SDK to support customer-specific REST integrations.
+- Integrate policy-as-code to validate flows before publish.

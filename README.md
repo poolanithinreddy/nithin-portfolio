@@ -1,36 +1,123 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+## Nithin Reddy Poola — Portfolio
 
-## Getting Started
+Production-grade portfolio with full-stack admin CMS, Next.js 14 App Router, Prisma + Supabase Postgres, NextAuth authentication, and Supabase Storage media management.
 
-First, run the development server:
+### Stack
 
-```bash
+- **Framework**: Next.js 14 (App Router, TypeScript strict mode, server components)
+- **Database**: Prisma ORM + Supabase Postgres (posts, projects, user data)
+- **Authentication**: NextAuth v4 with credentials provider + bcrypt password hashing
+- **Storage**: Supabase Storage with signed upload URLs for media management
+- **Styling**: Tailwind CSS with custom design system and dark mode support
+- **Content**: Prisma-backed posts/projects with markdown rendering (ReactMarkdown) + legacy Contentlayer MDX fallback
+- **Email**: Resend API with rate-limited contact endpoint
+- **Forms**: React Hook Form + Zod validation in admin CMS
+- **Tooling**: ESLint, TypeScript strict mode, Prisma migrations
+
+### Key Features
+
+- 🔐 **Admin Dashboard**: NextAuth-protected admin panel at \`/admin\` with posts, projects, and media management
+- 📝 **Content Management**: Create/edit posts and projects with rich forms, slug generation, and real-time validation
+- 🖼️ **Media Library**: Upload images to Supabase Storage, browse library, copy CDN URLs for posts/projects
+- 🎨 **Dynamic Rendering**: Homepage pulls featured projects and latest posts from Postgres
+- 📱 **Responsive Design**: Mobile-first UI with Apple-inspired aesthetics and GitHub-level clarity
+- 🌙 **Dark Mode**: Complete theme support with \`next-themes\` integration
+
+## Getting started
+
+### 1. Install dependencies
+
+\`\`\`bash
+npm install --legacy-peer-deps
+\`\`\`
+
+### 2. Set up environment variables
+
+Copy \`.env.example\` to \`.env.local\` and configure:
+
+\`\`\`bash
+cp .env.example .env.local
+\`\`\`
+
+#### Required Environment Variables
+
+| Name | Required | Description |
+| ---- | -------- | ----------- |
+| \`DATABASE_URL\` | **Yes** | PostgreSQL connection string. Format: \`postgresql://user:password@host:5432/db?schema=public\` |
+| \`AUTH_SECRET\` or \`NEXTAUTH_SECRET\` | **Yes** | NextAuth session encryption secret. Generate with \`openssl rand -base64 32\`. |
+| \`ADMIN_EMAIL\` | **Yes** | Admin login email address. |
+| \`ADMIN_PASSWORD_HASH\` | **Yes** | Bcrypt hash of admin password. Generate with \`npx tsx scripts/hash-password.ts\`. |
+
+#### Optional: Supabase Storage
+
+| Name | Description |
+| ---- | ----------- |
+| \`NEXT_PUBLIC_SUPABASE_URL\` | Supabase project URL. Required for media uploads. |
+| \`NEXT_PUBLIC_SUPABASE_ANON_KEY\` | Supabase anon public key. |
+| \`SUPABASE_SERVICE_ROLE_KEY\` | Supabase service role key (server-side only). Required for signed uploads. |
+| \`SUPABASE_STORAGE_BUCKET\` | Storage bucket name (default: \`portfolio-media\`). |
+
+#### Optional: Email & Analytics
+
+| Name | Description |
+| ---- | ----------- |
+| \`RESEND_API_KEY\` | Resend API key for contact form. |
+| \`RESEND_FROM\` | From address (default: \`Portfolio Contact <onboarding@resend.dev>\`). |
+| \`CONTACT_INBOX\` | Destination email (default: \`nithinreddypoola@gmail.com\`). |
+| \`NEXT_PUBLIC_PLAUSIBLE_DOMAIN\` | Plausible Analytics domain. |
+
+### 3. Generate admin password hash
+
+\`\`\`bash
+npx tsx scripts/hash-password.ts
+\`\`\`
+
+Add the generated hash to \`.env.local\` as \`ADMIN_PASSWORD_HASH\`.
+
+### 4. Initialize the database
+
+\`\`\`bash
+npx prisma generate
+npx prisma migrate dev --name init
+\`\`\`
+
+### 5. Start development server
+
+\`\`\`bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+\`\`\`
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Visit [http://localhost:3000](http://localhost:3000)  
+Admin: [http://localhost:3000/admin](http://localhost:3000/admin)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Admin CMS
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Authenticate at \`/login\` to access:
 
-## Learn More
+- **/admin/posts** - Create/edit posts with markdown, cover images, publish toggles
+- **/admin/projects** - Manage projects with tech stack, gallery, featured flags
+- **/admin/media** - Upload to Supabase Storage and copy public URLs
 
-To learn more about Next.js, take a look at the following resources:
+## Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command | Description |
+| ------- | ----------- |
+| \`npm run dev\` | Start dev server |
+| \`npm run build\` | Production build |
+| \`npm run lint\` | Run ESLint |
+| \`npm run typecheck\` | TypeScript check |
+| \`npx tsx scripts/hash-password.ts\` | Generate admin password hash |
+| \`npx prisma studio\` | Visual database editor |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Deployment
 
-## Deploy on Vercel
+Deploy to Vercel with these settings:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Build: \`npm run build\`
+- Install: \`npm install --legacy-peer-deps\`
+- Node: 18.x or 20.x
+- Add all environment variables
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## License
+
+MIT © Nithin Reddy Poola

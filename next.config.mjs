@@ -1,4 +1,10 @@
-/** @type {import('next').NextConfig} */
-const nextConfig = {};
+import { withContentlayer } from "next-contentlayer";
 
-export default nextConfig;
+/** @type {import('next').NextConfig} */
+const nextConfig = {
+	experimental: {
+		typedRoutes: true,
+	},
+};
+
+export default withContentlayer(nextConfig);

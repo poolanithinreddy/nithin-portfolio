@@ -213,15 +213,18 @@ export default function ConstellationTitle({
     };
   }, [density]);
 
+  const heightClasses = className && /h-\[|h-\d/.test(className) ? "" : " h-[300px] sm:h-[360px]";
+  const wrapperClasses = `relative overflow-hidden rounded-2xl border bg-white/40 backdrop-blur-sm
+                   border-neutral-200/70 ring-1 ring-black/0
+                   dark:border-white/10 dark:bg-[#0b0f14] dark:ring-white/0${heightClasses}${className ? ` ${className}` : ""}`;
+
   return (
-    <div className={className}>
+    <div className={wrapperClasses}>
       <canvas
         ref={cvs}
         role="img"
         aria-label="Animated constellation forming words describing expertise"
-        className="h-[360px] w-full rounded-2xl border bg-white/40 backdrop-blur-sm
-                   border-neutral-200/70 ring-1 ring-black/0
-                   dark:border-white/10 dark:bg-[#0b0f14] dark:ring-white/0"
+        className="block h-full w-full"
       />
     </div>
   );

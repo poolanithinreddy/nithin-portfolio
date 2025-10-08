@@ -113,6 +113,10 @@
     @apply border-border;
   }
 
+  html {
+    overflow-x: hidden;
+  }
+
   body {
     @apply bg-background text-foreground;
     min-height: 100vh;
@@ -126,6 +130,7 @@
     -webkit-overflow-scrolling: touch;
     overscroll-behavior: auto;
     scroll-behavior: smooth;
+    overflow-x: hidden;
   }
 
   /* Typography Hierarchy */

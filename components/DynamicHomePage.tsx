@@ -112,7 +112,7 @@ export function DynamicHomePage() {
   }
 
   return (
-    <div className="relative">
+    <div className="relative overflow-x-hidden">
       {/* Palette */}
       <CommandPalette />
 
@@ -182,7 +182,7 @@ export function DynamicHomePage() {
             </p>
 
             {/* LIVE METRICS */}
-            <div className="mt-6 sm:mt-8 mb-6 sm:mb-8">
+            <div className="mt-6 sm:mt-8 mb-6 sm:mb-8 max-w-full">
               <LiveMetrics />
             </div>
 
@@ -212,7 +212,7 @@ export function DynamicHomePage() {
             </div>
 
             {/* HARD STATS */}
-            <div className="mt-8 sm:mt-12 grid grid-cols-3 gap-2 sm:gap-4 max-w-md">
+            <div className="mt-8 sm:mt-12 grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-4 max-w-md">
               {[
                 { k: "Products Shipped", v: "23+", icon: Sparkles },
                 { k: "Avg Response", v: "<100ms", icon: Zap },
@@ -279,16 +279,52 @@ export function DynamicHomePage() {
             </ScrollReveal>
 
             <ScrollReveal delay={100}>
-              <ProductTheater project={{
-                title: featured.title,
-                slug: featured.slug,
-                summary: featured.summary || "Amazing project with cutting-edge technology."
-              }} />
+              <div className="hidden md:block">
+                <ProductTheater project={{
+                  title: featured.title,
+                  slug: featured.slug,
+                  summary: featured.summary || "Amazing project with cutting-edge technology."
+                }} />
+              </div>
+              <div className="md:hidden">
+                <div className="glass radius-lg p-5 space-y-4 text-left border border-neutral-200/60 dark:border-neutral-700/60">
+                  <div className="inline-flex items-center gap-2 text-xs font-semibold text-neutral-600 dark:text-neutral-300 uppercase tracking-[0.2em]">
+                    <Sparkles className="h-4 w-4" />
+                    Case Study
+                  </div>
+                  <h3 className="text-2xl font-bold text-neutral-900 dark:text-neutral-50 leading-snug">
+                    {featured.title}
+                  </h3>
+                  {featured.summary ? (
+                    <p className="text-sm text-neutral-600 dark:text-neutral-300 leading-relaxed">
+                      {featured.summary}
+                    </p>
+                  ) : null}
+                  {featured.tech?.length ? (
+                    <div className="flex flex-wrap gap-2 pt-1">
+                      {featured.tech.slice(0, 4).map((tech) => (
+                        <span key={tech} className="chip text-xs">
+                          {tech}
+                        </span>
+                      ))}
+                    </div>
+                  ) : null}
+                  <Button
+                    asChild
+                    size="sm"
+                    className="btn-primary w-full justify-center h-10"
+                  >
+                    <Link href={`/work/${featured.slug}` as Route}>
+                      View Case Study
+                    </Link>
+                  </Button>
+                </div>
+              </div>
             </ScrollReveal>
 
             <ScrollReveal delay={200}>
               <div className="grid gap-4 sm:gap-6 md:grid-cols-3 mt-6 sm:mt-10">
-                <div className="md:col-span-2 glass p-5 sm:p-8 radius-lg inner-glow">
+                <div className="hidden md:block md:col-span-2 glass p-5 sm:p-8 radius-lg inner-glow">
                   <h2 className="headline-lg text-2xl sm:text-3xl lg:text-4xl mb-1">{featured.title}</h2>
                   {featured.summary && (
                     <p className="mt-3 sm:mt-5 text-base sm:text-lg leading-relaxed text-neutral-700 dark:text-neutral-300">

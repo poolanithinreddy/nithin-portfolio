@@ -41,7 +41,6 @@ type ProjectViewModel = {
 
 export default async function WorkPage() {
   let projects: ProjectViewModel[] = [];
-  let usedFallback = false;
 
   try {
     const dbProjects = await prisma.project.findMany({
@@ -64,11 +63,10 @@ export default async function WorkPage() {
     }));
   } catch (error) {
     console.warn("[work/page] Unable to query projects; using fallback", error);
-    usedFallback = true;
   }
 
   if (projects.length === 0) {
-    const fallbackProjects = getFallbackProjects();
+    const fallbackProjects = await getFallbackProjects();
     if (fallbackProjects.length > 0) {
       projects = fallbackProjects.map((project) => ({
         id: project.id,
@@ -84,7 +82,6 @@ export default async function WorkPage() {
         featured: project.featured,
         createdAt: new Date(project.createdAt),
       }));
-      usedFallback = true;
     }
   }
 
@@ -133,11 +130,7 @@ export default async function WorkPage() {
           <WorkFilters />
         </div>
 
-        {usedFallback && (
-          <div className="surface-card border border-amber-200/60 dark:border-amber-500/40 text-amber-900 dark:text-amber-200 rounded-2xl p-4 mb-10 text-sm">
-            ⚠️ Displaying projects from static MDX content while the primary database is unreachable.
-          </div>
-        )}
+        {/* Fallback data is handled silently to avoid disrupting the browsing experience. */}
 
         {/* Featured Projects */}
         {featuredProjects.length > 0 && (
@@ -148,7 +141,7 @@ export default async function WorkPage() {
             </div>
 
             <div className="grid gap-8 lg:grid-cols-2">
-              {featuredProjects.map((project: { id: string; title: string; slug: string; description: string | null; featured: boolean; summary: string | null; tech: string[] | null; coverImage: string | null }) => (
+              {featuredProjects.map((project) => (
                 <Link
                   key={project.slug}
                   href={`/work/${project.slug}` as Route}
@@ -194,7 +187,7 @@ export default async function WorkPage() {
             <h2 className="text-2xl md:text-3xl font-bold mb-8">All Projects</h2>
 
             <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
-              {regularProjects.map((project: { id: string; title: string; slug: string; description: string | null; featured: boolean; summary: string | null; tech: string[] | null; coverImage: string | null }) => (
+              {regularProjects.map((project) => (
                 <Link
                   key={project.slug}
                   href={`/work/${project.slug}` as Route}

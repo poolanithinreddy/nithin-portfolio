@@ -12,7 +12,7 @@ interface MetricBadgeProps {
 
 function MetricBadge({ label, value, icon, trend }: MetricBadgeProps) {
   return (
-    <div className="group relative">
+    <div className="group relative w-full">
       <div className="absolute inset-0 bg-gradient-to-r from-accent-a/20 to-accent-c/20 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
       <div className="relative glass-card px-4 py-3 rounded-2xl border border-neutral-200/50 dark:border-neutral-800/50 hover:border-accent-a/30 transition-all duration-300">
         <div className="flex items-center gap-3">
@@ -43,7 +43,11 @@ function MetricBadge({ label, value, icon, trend }: MetricBadgeProps) {
   );
 }
 
-export function LiveMetrics() {
+type LiveMetricsProps = {
+  compact?: boolean;
+};
+
+export function LiveMetrics({ compact = false }: LiveMetricsProps) {
   const [metrics, setMetrics] = useState({
     p95: "87ms",
     uptime: "99.96%",
@@ -63,8 +67,12 @@ export function LiveMetrics() {
     return () => clearInterval(interval);
   }, []);
 
+  const containerClass = compact
+    ? "grid grid-cols-1 gap-3 w-full"
+    : "grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 w-full";
+
   return (
-    <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full max-w-3xl mx-auto">
+    <div className={containerClass}>
       <MetricBadge
         label="p95 Latency"
         value={metrics.p95}
